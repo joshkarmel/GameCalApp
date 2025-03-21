@@ -1,0 +1,24 @@
+{
+  "Version": 1,
+  "Hash": "T6PkeBGTN6NR2Uys7ZM1/5OYFZuR5hVH5mzI0/na6Sw=",
+  "Source": "GameCal.Server",
+  "BasePath": "_content/GameCal.Server",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [
+    {
+      "Identity": "D:\\Game Projects\\GameCal\\GameCal\\gamecal.client\\gamecal.client.esproj",
+      "Version": 2,
+      "Source": "gamecal.client",
+      "GetPublishAssetsTargets": "GetCurrentProjectPublishStaticWebAssetItems",
+      "AdditionalPublishProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalPublishPropertiesToRemove": "WebPublishProfileFile;TargetFramework;RuntimeIdentifier;SelfContained",
+      "GetBuildAssetsTargets": "GetCurrentProjectBuildStaticWebAssetItems",
+      "AdditionalBuildProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework;RuntimeIdentifier;SelfContained"
+    }
+  ],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

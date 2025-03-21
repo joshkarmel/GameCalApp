@@ -1,0 +1,64 @@
+{
+  "version": 3,
+  "targets": {
+    "net6.0-none": {}
+  },
+  "libraries": {},
+  "projectFileDependencyGroups": {
+    "net6.0-none": []
+  },
+  "packageFolders": {
+    "C:\\Users\\Shua\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "D:\\Game Projects\\GameCal\\GameCal\\gamecal.client\\gamecal.client.esproj",
+      "projectName": "gamecal.client",
+      "projectPath": "D:\\Game Projects\\GameCal\\GameCal\\gamecal.client\\gamecal.client.esproj",
+      "packagesPath": "C:\\Users\\Shua\\.nuget\\packages\\",
+      "outputPath": "D:\\Game Projects\\GameCal\\GameCal\\gamecal.client\\obj\\",
+      "projectStyle": "PackageReference",
+      "UsingMicrosoftNETSdk": false,
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
+      "configFilePaths": [
+        "C:\\Users\\Shua\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "net6.0"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net6.0-none": {
+          "targetAlias": "net6.0",
+          "projectReferences": {}
+        }
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      }
+    },
+    "frameworks": {
+      "net6.0-none": {
+        "targetAlias": "net6.0"
+      }
+    }
+  },
+  "logs": [
+    {
+      "code": "NU1012",
+      "level": "Error",
+      "message": "Platform version is not present for one or more target frameworks, even though they have specified a platform: net6.0-none"
+    }
+  ]
+}

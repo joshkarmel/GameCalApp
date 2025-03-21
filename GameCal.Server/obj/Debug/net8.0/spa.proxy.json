@@ -1,0 +1,10 @@
+{
+"SpaProxyServer": {
+"ServerUrl": "https://localhost:50574",
+"RedirectUrl": "",
+"LaunchCommand": "npm run dev",
+"WorkingDirectory": "D:\\Game Projects\\GameCal\\GameCal\\GameCal.Server\\..\\gamecal.client",
+"MaxTimeoutInSeconds": "120",
+"KeepRunning": "false"
+}
+}
