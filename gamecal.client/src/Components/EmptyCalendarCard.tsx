@@ -20,7 +20,9 @@ function EmptyCalendarCard(props: any) {
                             textAlign: "right",
                             color: "white",
                             fontWeight: 650,
-                            backgroundColor: "#222",
+                            backgroundColor: date === new Date().getDate()
+                                ? "rgb(185, 161, 30)"
+                                : "#222",
                             borderRadius: "0 0 0 60%",
                             boxShadow: "-2px 2px 10px black",
                             textWrap: "nowrap",

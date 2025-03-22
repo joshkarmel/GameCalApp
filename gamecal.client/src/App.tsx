@@ -5,8 +5,7 @@ import './App.css';
 import Col from "react-bootstrap/Col";
 import Spinner from "react-bootstrap/Spinner";
 import CardCalendar from "./Components/CardCalendar.tsx"
-import {months} from "./Shared/SharedVariables.tsx";
-import CalendarCard from "./Components/CalendarCard.tsx";
+import {months, platforms} from "./Shared/SharedVariables.tsx";
 
 interface GameData {
     firstReleaseDate: string;
@@ -14,7 +13,7 @@ interface GameData {
     releaseDates: Array<Date>;
     name: number;
     id: number;
-    platform: string;
+    platforms: number[];
     cover: string;
     coverImage: CoverImage;
     ratingCount: number;
@@ -47,13 +46,15 @@ interface State {
 
 function App() {
     const [state, setState] = useState<State>();
+    const [spinner, setSpinner] = useState(true);
 
     useEffect(() => {
         const fetchGameData = async () => {
-            //let today = new Date(Date.now());
-            await populateGameData(2, 2025);
+            let today = new Date(Date.now());
+            await populateGameData(today.getMonth() + 1, today.getFullYear());
         }
         fetchGameData().catch(error => console.log(error));
+        setSpinner(false);
     }, []);
 
     const updateMonth = (monthId: number, year: number, datesGames: DateGames[]) => {
@@ -81,9 +82,32 @@ function App() {
         return currentMonth;
     }
 
+    const previousMonth = async () => {
+        if (state) {
+            setSpinner(true);
+            let year = state.currentMonth.monthId == 0
+                ? state.currentMonth.year - 1
+                : state.currentMonth.year;
+            await populateGameData(state.currentMonth.monthId - 1, year)
+                .then(() => setSpinner(false));
+            ;
+        }
+    }
+    const nextMonth = async () => {
+        if (state) {
+            setSpinner(true);
+            let year = state.currentMonth.monthId == 11
+                ? state.currentMonth.year + 1
+                : state.currentMonth.year;
+            await populateGameData(state.currentMonth.monthId + 1, year)
+                .then(() => setSpinner(false));
+        }
+    }
+
     const calendar = state === undefined || state.datesGames === undefined
         ? <Spinner/>
-        : <CardCalendar currentMonth={state.currentMonth}/>
+        : <CardCalendar currentMonth={state.currentMonth} nextMonth={nextMonth} previousMonth={previousMonth}
+                        style={{alignContent: "center"}}/>
 
     const contents = state === undefined || state.datesGames === undefined
         ? <div style={{color: "white"}}>
@@ -97,32 +121,41 @@ function App() {
             </div>
         </div>
         :
-        <Container style={{alignContent: "center"}}>
-            {state.datesGames.map((date: DateGames) =>
+        <Container style={{alignContent: "center", padding: "15px"}}>
+            {state.datesGames.map((date: DateGames, index: number) =>
                 (<Row key={date.releaseDate.toLocaleDateString()}
+                      className="justify-content-center"
                       style={{
                           alignContent: "center",
-                          paddingBottom: "10px",
-                          textOverflow: "clip"
+                          //paddingBottom: "25px",
+                          padding: "15px",
+                          textOverflow: "clip",
+                          textAlign: "left",
+                          backgroundColor: index % 2 === 0 ? "#212" : "#222",
+                          border: "solid 1px black",
+                          borderRadius: "25px",
+                          textShadow: "3px 3px 2px black",
+                          fontWeight: 550,
+                          boxShadow: "3px 3px 10px black"
                       }}
                     >
-                        <Col lg={1} style={{color: "#f1f1f1", alignContent: "center"}}>
-                            {date.releaseDate.toLocaleDateString()}
+                        <Col lg={1} style={{color: "#f1f1f1", alignContent: "center", paddingRight: "30px"}}>
+                            {date.releaseDate.toLocaleDateString()}:
                         </Col>
                         <Col>
-                            <Row lg={7} md={7} xs={7} sm={7}>
-                                {date.games.map((game: GameData) => {
-                                        let coverImage = game.cover != "0"
-                                            && `url("//images.igdb.com/igdb/image/upload/t_cover_big/` + game.coverImage.image_Id + `.jpg")`;
-                                        return (
-                                            <Col key={game.id + game.name} style={{padding: "0"}}>
-                                                <CalendarCard game={game} coverImage={coverImage} width={"auto"}
-                                                              style={{width: "auto", fontSize: "2rem"}}/>
-                                            </Col>
-                                        )
-                                    }
-                                )}
-                            </Row>
+                            {date.games.map((game: GameData) => {
+                                    // let coverImage = game.cover != "0"
+                                    //     && `url("//images.igdb.com/igdb/image/upload/t_cover_big/` + game.coverImage.image_Id + `.jpg")`;
+                                    let gamePlatforms = game.platforms.map((p: number) => platforms[p] ?? p).join(', ');
+                                    return (
+                                        <Col key={game.id + game.name} style={{paddingLeft: "15px", color: "white"}}>
+                                            {game.name} {gamePlatforms.length > 0 && "(" + gamePlatforms + ")"}
+                                            {/*<CalendarCard game={game} coverImage={coverImage} width={"auto"}*/}
+                                            {/*              style={{width: "auto", fontSize: "2rem"}}/>*/}
+                                        </Col>
+                                    )
+                                }
+                            )}
                         </Col>
                     </Row>
                 )
@@ -132,13 +165,19 @@ function App() {
     return (
         <div>
             <h1 id="tableLabel">GameDay</h1>
-            {calendar}
+            {state && spinner
+                ? <Spinner animation="border" role="status" variant="primary"/>
+                : calendar}
             {contents}
         </div>
     );
 
     async function populateGameData(month: number, year: number) {
-        const response = await fetch('gamedata');
+        const response = await fetch('gamedata?' +
+            new URLSearchParams({
+                month: month.toString(),
+                year: year.toString()
+            }).toString());
         if (response.ok) {
             const data = await response.json();
             let sortedData = data
@@ -149,7 +188,7 @@ function App() {
                         releaseDate: new Date(gameData.releaseDate)
                     };
                 })
-            let date: Date = month !== null && year !== null && sortedData[0].releaseDate;
+            let date: Date = sortedData[0].releaseDate;
             setState({
                 ...state,
                 datesGames: sortedData,

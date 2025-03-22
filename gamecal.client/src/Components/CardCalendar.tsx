@@ -66,18 +66,18 @@ function CardCalendar(props: any) {
         )
     }
 
-    return (<Container fluid>
+    return (<Container>
             <Row className="justify-content-center"
                  style={{color: "white", fontWeight: "bold", fontSize: "20px", alignContent: "center"}}>
                 <Col xs lg={2}>
-                    <Button>{"<"}</Button>
+                    <Button onClick={props.previousMonth}>{"<"}</Button>
                 </Col>
                 <Col md="auto">
                     {months[currentMonth.monthId - 1]}&nbsp;
                     {currentMonth.year}
                 </Col>
                 <Col xs lg={2}>
-                    <Button>{">"}</Button>
+                    <Button onClick={props.nextMonth}>{">"}</Button>
                 </Col>
             </Row>
             <Row lg={7} md={7} xs={7} sm={7} style={{height: "30px"}}>
