@@ -1,12 +1,12 @@
 import {useEffect, useState} from 'react';
-import Card from 'react-bootstrap/Card';
-import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Row from "react-bootstrap/Row";
 import './App.css';
 import Col from "react-bootstrap/Col";
 import Spinner from "react-bootstrap/Spinner";
-import {CardGroup} from "react-bootstrap";
+import CardCalendar from "./Components/CardCalendar.tsx"
+import {months} from "./Shared/SharedVariables.tsx";
+import CalendarCard from "./Components/CalendarCard.tsx";
 
 interface GameData {
     firstReleaseDate: string;
@@ -33,7 +33,7 @@ interface DateGames {
     games: GameData[];
 }
 
-interface Month {
+export interface Month {
     monthId: number;
     name: string;
     dates: DateGames[];
@@ -48,30 +48,13 @@ interface State {
 function App() {
     const [state, setState] = useState<State>();
 
-    const defaultMonth: Month = {
-        monthId: 0,
-        name: "",
-        dates: [],
-        year: 0,
-    }
-
-    // const defaultDate: DateGames = {
-    //     releaseDate: new Date(),
-    //     games: []
-    // }
-
     useEffect(() => {
         const fetchGameData = async () => {
-            let today = new Date(Date.now());
-            await populateGameData(2, 2022);
+            //let today = new Date(Date.now());
+            await populateGameData(2, 2025);
         }
         fetchGameData().catch(error => console.log(error));
     }, []);
-
-    var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-    var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    var calendarCards: any[][] = [days, days, days, days, days, days];
 
     const updateMonth = (monthId: number, year: number, datesGames: DateGames[]) => {
         var daysInMonth = new Date(year, monthId, 0).getDate();
@@ -98,114 +81,9 @@ function App() {
         return currentMonth;
     }
 
-    const emptyCard: any = (id: string) => {
-        return <Col key={"empty" + id} style={{width: "100%"}}>
-            <Card style={{height: "150px", width: "170px", backgroundColor: "grey"}}>
-            </Card>
-        </Col>
-    }
-
-    const generateMonth = () => {
-        let releaseMonth: Month = state !== undefined ? state.currentMonth : defaultMonth;
-        let monthOffset: number = releaseMonth.dates[0].releaseDate.getDay();
-        let dayCards: any[] = [];
-        for (let i: number = 0; i < monthOffset; i++) {
-            dayCards.push(emptyCard("offset" + i));
-        }
-
-        for (let i: number = 0; i < releaseMonth.dates.length; i++) {
-            let games = releaseMonth.dates[i].games;
-            let sortedByRatingCount = games.sort((a, b) => b.ratingCount - a.ratingCount);
-            let game = sortedByRatingCount[0];
-            if (game !== undefined) {
-                let coverImage = game.cover != "0"
-                    && `url("//images.igdb.com/igdb/image/upload/t_cover_big/` + game.coverImage.image_Id + `.jpg")`;
-                dayCards.push(
-                    <Col key={game.id + game.name}>
-                        <Card key={game.id}
-                              style={{
-                                  borderRadius: "inherit",
-                                  border: 'solid 4px darkblue',
-                                  height: "150px",
-                                  width: "170px",
-                              }}>
-                            <Card.Title>{releaseMonth.dates[i].releaseDate.getDate()}</Card.Title>
-                            <Button style={{
-                                fontSize: "inherit",
-                                fontWeight: 750,
-                                textShadow: "2px 2px 2px black",
-                                backgroundSize: "cover",
-                                backgroundImage: coverImage || "",
-                                backgroundColor: "blue",
-                                //backgroundBlendMode: "multiply",
-                                alignContent: "center",
-                                textOverflow: "clip",
-                                border: "2px black",
-                                borderRadius: "inherit",
-                                stroke: "black",
-                                strokeWidth: "3px",
-                                height: "100%"
-                            }}>
-                                {game.name}
-                            </Button>
-                        </Card>
-                    </Col>
-                );
-            } else {
-                dayCards.push(
-                    <Col key={"empty" + i}>
-                        <Card style={{height: "150px", width: "170px"}}>
-                            <Card.Title>{releaseMonth.dates[i].releaseDate.getDate()}</Card.Title>
-                        </Card>
-                    </Col>);
-            }
-        }
-
-        for (let i: number = 0; i < 42 - (monthOffset + releaseMonth.dates.length); i++) {
-            dayCards.push(emptyCard("end" + i));
-        }
-
-        return calendarCards.map((week: any, index: number) =>
-            (<Row key={"week" + index}>
-                <CardGroup>
-                    {
-                        week.map((day: any, i: number) => {
-                            return dayCards[(index * 7) + i]
-                        })
-                    }
-                </CardGroup>
-            </Row>)
-        )
-    }
-
     const calendar = state === undefined || state.datesGames === undefined
         ? <Spinner/>
-        : <Container fluid>
-            <Row className="justify-content-center" style={{color: "white", fontWeight: "bold", fontSize: "20px"}}>
-                <Col xs lg={2}>
-                    <Button>{"<"}</Button>
-                </Col>
-                <Col md="auto">
-                    {state && months[state.currentMonth.monthId - 1]}&nbsp;
-                    {state && state.currentMonth.year}
-                </Col>
-                <Col xs lg={2}>
-                    <Button>{">"}</Button>
-                </Col>
-            </Row>
-            <Row lg={7} md={7} xs={7} style={{height: "30px"}}>
-                <CardGroup className="mb-3">
-                    {days.map((day: string) =>
-                        <Col key={day}>
-                            <Card style={{height: "30px"}}>
-                                {day}
-                            </Card>
-                        </Col>
-                    )}
-                </CardGroup>
-            </Row>
-            {generateMonth()}
-        </Container>
+        : <CardCalendar currentMonth={state.currentMonth}/>
 
     const contents = state === undefined || state.datesGames === undefined
         ? <div style={{color: "white"}}>
@@ -232,34 +110,14 @@ function App() {
                             {date.releaseDate.toLocaleDateString()}
                         </Col>
                         <Col>
-                            <Row>
+                            <Row lg={7} md={7} xs={7} sm={7}>
                                 {date.games.map((game: GameData) => {
                                         let coverImage = game.cover != "0"
                                             && `url("//images.igdb.com/igdb/image/upload/t_cover_big/` + game.coverImage.image_Id + `.jpg")`;
                                         return (
                                             <Col key={game.id + game.name} style={{padding: "0"}}>
-                                                <Card key={game.id}
-                                                      style={{
-                                                          borderRadius: "inherit",
-                                                          border: 'solid 4px darkblue',
-                                                      }}>
-                                                    <Button style={{
-                                                        fontSize: "2rem",
-                                                        fontWeight: 750,
-                                                        textShadow: "2px 2px 2px black, -2px -2px -2px black",
-                                                        backgroundSize: "cover",
-                                                        backgroundImage: coverImage || "",
-                                                        backgroundColor: "blue",
-                                                        //backgroundBlendMode: "multiply",
-                                                        textOverflow: "clip",
-                                                        width: "auto",
-                                                        height: "200px",
-                                                        border: "2px black",
-                                                        borderRadius: "inherit"
-                                                    }}>
-                                                        {game.name}
-                                                    </Button>
-                                                </Card>
+                                                <CalendarCard game={game} coverImage={coverImage} width={"auto"}
+                                                              style={{width: "auto", fontSize: "2rem"}}/>
                                             </Col>
                                         )
                                     }
@@ -291,7 +149,7 @@ function App() {
                         releaseDate: new Date(gameData.releaseDate)
                     };
                 })
-            let date:Date = sortedData[0].releaseDate;
+            let date: Date = month !== null && year !== null && sortedData[0].releaseDate;
             setState({
                 ...state,
                 datesGames: sortedData,
