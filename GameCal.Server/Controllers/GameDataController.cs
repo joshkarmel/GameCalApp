@@ -27,7 +27,7 @@ namespace GameCal.Server.Controllers
         private string AccessToken;
 
         [HttpGet(Name = "GetReleaseDates")]
-        public async Task<IEnumerable<ReleaseDateList>> Get(string? fields = null)
+        public async Task<IEnumerable<ReleaseDateList>> Get(string? fields = null, string? month = null, string? year = null)
         {
             try
             {
@@ -45,11 +45,12 @@ namespace GameCal.Server.Controllers
                 }
                 else
                 {
-                    var dates = await GetReleaseDates(fields);
+                    var dates = await GetReleaseDates(fields, month, year);
                     if (dates.Count == 500)
                     {
-                        dates.AddRange(await GetReleaseDates(fields+" offset 500;"));
+                        dates.AddRange(await GetReleaseDates(fields + " offset 500;"));
                     }
+
                     var searchString = dates.Aggregate("where id = (",
                         (current, date) => current + $"{date.game},");
                     searchString = searchString.Remove(searchString.Length - 1) + ");";
@@ -58,15 +59,23 @@ namespace GameCal.Server.Controllers
 
                     var groupedDates = dates
                         .GroupBy(date => date.releaseDate, date => date)
-                        .Select(releaseDates => new ReleaseDateList
-                        {
-                            ReleaseDate = releaseDates.Key,
-                            Games = games
-                                .Where(g => g.Release_Dates
-                                    .Any(releaseId => releaseDates
-                                        .Any(releaseDate => releaseDate.id == releaseId)))
-                                .ToList()
-                        }).ToList();
+                        .Select(releaseDates =>
+                            new ReleaseDateList
+                            {
+                                ReleaseDate = releaseDates.Key,
+                                Games = games.Where(g =>
+                                        g.Release_Dates!.Any(releaseId =>
+                                            releaseDates.Any(releaseDate => releaseDate.id == releaseId)))
+                                    .Select(g =>
+                                    {
+                                        g.Platforms = releaseDates
+                                            .Where(r => g.Release_Dates.Contains(r.id))
+                                            .Select(r => r.platform)
+                                            .ToArray();
+                                        return g;
+                                    })
+                                    .ToList()
+                            }).ToList();
                     return groupedDates;
                 }
             }
@@ -77,9 +86,16 @@ namespace GameCal.Server.Controllers
             }
         }
 
-        private async Task<List<ReleaseDate>> GetReleaseDates(string? fields)
+        private async Task<List<ReleaseDate>> GetReleaseDates(string? fields, string? month = null, string? year = null)
         {
-            var query = fields ?? "fields *; limit 500; where (game.aggregated_rating_count > 0 | game.rating_count > 0) & m = 3 & y = 2025; sort date asc;";
+            var m = month ?? DateTime.Today.Month.ToString();
+            var y = year ?? DateTime.Today.Year.ToString();
+            var query = fields ??
+                        $"fields *;" +
+                        $"limit 500;" +
+                        $"where (game.aggregated_rating_count > 0 | game.rating_count > 0)" +
+                        $"& m = {m} & y = {y};" +
+                        $"sort date asc;";
             var response = await SendHttpRequest("release_dates", query);
             var dates = new List<ReleaseDate>();
 

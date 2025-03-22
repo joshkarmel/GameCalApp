@@ -13,7 +13,7 @@ namespace GameCal.Server
         public int? Cover { get; set; }
         public Cover CoverImage { get; set; }
         public int[] Artworks { get; set; } = [];
-        public IEnumerable<Artwork> ArtworkImages { get; set; }
+        public IEnumerable<Artwork> ArtworkImages { get; set; } = new List<Artwork>();
         public int RatingCount => aggregated_rating_count;
         public int aggregated_rating_count { get; set; }
     }
